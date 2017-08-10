@@ -56,9 +56,10 @@ type ArmClient struct {
 	vmClient               compute.VirtualMachinesClient
 	imageClient            compute.ImagesClient
 
-	diskClient       disk.DisksClient
-	cosmosDBClient   cosmosdb.DatabaseAccountsClient
-	automationClient automation.AccountClient
+	diskClient              disk.DisksClient
+	cosmosDBClient          cosmosdb.DatabaseAccountsClient
+	automationAccountClient automation.AccountClient
+	automationRunbookClient automation.RunbookClient
 
 	appGatewayClient             network.ApplicationGatewaysClient
 	ifaceClient                  network.InterfacesClient
@@ -540,11 +541,17 @@ func (c *Config) getArmClient() (*ArmClient, error) {
 	spc.Sender = autorest.CreateSender(withRequestLogging())
 	client.servicePrincipalsClient = spc
 
-	adb := automation.NewAccountClientWithBaseURI(endpoint, c.SubscriptionID)
-	setUserAgent(&adb.Client)
-	adb.Authorizer = auth
-	adb.Sender = autorest.CreateSender(withRequestLogging())
-	client.automationClient = adb
+	aadb := automation.NewAccountClientWithBaseURI(endpoint, c.SubscriptionID)
+	setUserAgent(&aadb.Client)
+	aadb.Authorizer = auth
+	aadb.Sender = autorest.CreateSender(withRequestLogging())
+	client.automationAccountClient = aadb
+
+	ardb := automation.NewRunbookClientWithBaseURI(endpoint, c.SubscriptionID)
+	setUserAgent(&ardb.Client)
+	ardb.Authorizer = auth
+	ardb.Sender = autorest.CreateSender(withRequestLogging())
+	client.automationRunbookClient = ardb
 
 	return &client, nil
 }

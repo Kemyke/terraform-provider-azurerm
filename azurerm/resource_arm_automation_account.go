@@ -74,7 +74,7 @@ func resourceAzureRMAutomationAccountSkuHash(v interface{}) int {
 }
 
 func resourceArmAutomationAccountCreateUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*ArmClient).automationClient
+	client := meta.(*ArmClient).automationAccountClient
 	log.Printf("[INFO] preparing arguments for AzureRM Automation Account creation.")
 
 	name := d.Get("name").(string)
@@ -114,7 +114,7 @@ func resourceArmAutomationAccountCreateUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceArmAutomationAccountRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*ArmClient).automationClient
+	client := meta.(*ArmClient).automationAccountClient
 	id, err := parseAzureResourceID(d.Id())
 	if err != nil {
 		return err
@@ -143,7 +143,7 @@ func resourceArmAutomationAccountRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceArmAutomationAccountDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*ArmClient).automationClient
+	client := meta.(*ArmClient).automationAccountClient
 
 	id, err := parseAzureResourceID(d.Id())
 	if err != nil {
