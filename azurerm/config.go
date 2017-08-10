@@ -8,6 +8,7 @@ import (
 	"net/http/httputil"
 
 	"github.com/Azure/azure-sdk-for-go/arm/appinsights"
+	"github.com/Azure/azure-sdk-for-go/arm/automation"
 	"github.com/Azure/azure-sdk-for-go/arm/cdn"
 	"github.com/Azure/azure-sdk-for-go/arm/compute"
 	"github.com/Azure/azure-sdk-for-go/arm/containerregistry"
@@ -55,8 +56,9 @@ type ArmClient struct {
 	vmClient               compute.VirtualMachinesClient
 	imageClient            compute.ImagesClient
 
-	diskClient     disk.DisksClient
-	cosmosDBClient cosmosdb.DatabaseAccountsClient
+	diskClient       disk.DisksClient
+	cosmosDBClient   cosmosdb.DatabaseAccountsClient
+	automationClient automation.AccountClient
 
 	appGatewayClient             network.ApplicationGatewaysClient
 	ifaceClient                  network.InterfacesClient
@@ -537,6 +539,12 @@ func (c *Config) getArmClient() (*ArmClient, error) {
 	spc.Authorizer = graphAuth
 	spc.Sender = autorest.CreateSender(withRequestLogging())
 	client.servicePrincipalsClient = spc
+
+	adb := automation.NewAccountClientWithBaseURI(endpoint, c.SubscriptionID)
+	setUserAgent(&adb.Client)
+	adb.Authorizer = auth
+	adb.Sender = autorest.CreateSender(withRequestLogging())
+	client.automationClient = adb
 
 	return &client, nil
 }
