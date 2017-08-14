@@ -184,8 +184,7 @@ func resourceArmAutomationRunbookRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("logProgress", resp.LogProgress)
 	d.Set("runbookType", resp.RunbookType)
 	d.Set("description", resp.Description)
-
-	flattenAndSetContentLink(d, resp.PublishContentLink)
+	d.Set("publishContentLink", nil) //publish content link is not set during Get()
 
 	flattenAndSetTags(d, resp.Tags)
 
@@ -214,18 +213,6 @@ func resourceArmAutomationRunbookDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	return nil
-}
-
-func flattenAndSetContentLink(d *schema.ResourceData, contentLink *automation.ContentLink) {
-	results := schema.Set{
-		F: resourceAzureRMAutomationRunbookContentLinkHash,
-	}
-
-	result := map[string]interface{}{}
-	result["uri"] = contentLink.URI
-	results.Add(result)
-
-	d.Set("publishContentLink", &results)
 }
 
 func expandContentLink(d *schema.ResourceData) automation.ContentLink {

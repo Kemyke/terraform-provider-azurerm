@@ -24,6 +24,7 @@ func TestAccAzureRMAutomationRunbook_testScript(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testCheckAzureRMAutomationRunbookExists("azurerm_automation_runbook.test"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
