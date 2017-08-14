@@ -201,7 +201,7 @@ func resourceArmAutomationRunbookDelete(d *schema.ResourceData, meta interface{}
 	}
 	resGroup := id.ResourceGroup
 	accName := id.Path["automationAccounts"]
-	name := id.Path["automationAccounts"]
+	name := id.Path["runbooks"]
 
 	resp, err := client.Delete(resGroup, accName, name)
 
@@ -222,7 +222,7 @@ func flattenAndSetContentLink(d *schema.ResourceData, contentLink *automation.Co
 	}
 
 	result := map[string]interface{}{}
-	result["uri"] = &contentLink.URI
+	result["uri"] = contentLink.URI
 	results.Add(result)
 
 	d.Set("publishContentLink", &results)

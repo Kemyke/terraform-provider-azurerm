@@ -105,7 +105,7 @@ resource "azurerm_automation_account" "test" {
 }
 
 resource "azurerm_automation_runbook" "test" {
-  name	 	      = "testrunbook"
+  name	 	      = "Get-AzureVMTutorial"
   location            = "${azurerm_resource_group.test.location}"
   resource_group_name = "${azurerm_resource_group.test.name}"
  
@@ -113,8 +113,8 @@ resource "azurerm_automation_runbook" "test" {
   logVerbose	      = "true"
   logProgress	      = "true"
   description	      = "This is a test runbook for terraform acceptance test"
-  runbookType	      = "Script"
-  contentLink {
+  runbookType	      = "PowerShellWorkflow"
+  publishContentLink {
 	uri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-automation-runbook-getvms/Runbooks/Get-AzureVMTutorial.ps1"
   }
 }
