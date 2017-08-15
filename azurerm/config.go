@@ -61,6 +61,7 @@ type ArmClient struct {
 	automationAccountClient    automation.AccountClient
 	automationRunbookClient    automation.RunbookClient
 	automationCredentialClient automation.CredentialClient
+	automationScheduleClient   automation.ScheduleClient
 
 	appGatewayClient             network.ApplicationGatewaysClient
 	ifaceClient                  network.InterfacesClient
@@ -548,17 +549,23 @@ func (c *Config) getArmClient() (*ArmClient, error) {
 	aadb.Sender = autorest.CreateSender(withRequestLogging())
 	client.automationAccountClient = aadb
 
-	ardb := automation.NewRunbookClientWithBaseURI(endpoint, c.SubscriptionID)
-	setUserAgent(&ardb.Client)
-	ardb.Authorizer = auth
-	ardb.Sender = autorest.CreateSender(withRequestLogging())
-	client.automationRunbookClient = ardb
+	arc := automation.NewRunbookClientWithBaseURI(endpoint, c.SubscriptionID)
+	setUserAgent(&arc.Client)
+	arc.Authorizer = auth
+	arc.Sender = autorest.CreateSender(withRequestLogging())
+	client.automationRunbookClient = arc
 
-	acdb := automation.NewCredentialClientWithBaseURI(endpoint, c.SubscriptionID)
-	setUserAgent(&acdb.Client)
-	acdb.Authorizer = auth
-	acdb.Sender = autorest.CreateSender(withRequestLogging())
-	client.automationCredentialClient = acdb
+	acc := automation.NewCredentialClientWithBaseURI(endpoint, c.SubscriptionID)
+	setUserAgent(&acc.Client)
+	acc.Authorizer = auth
+	acc.Sender = autorest.CreateSender(withRequestLogging())
+	client.automationCredentialClient = acc
+
+	aschc := automation.NewScheduleClientWithBaseURI(endpoint, c.SubscriptionID)
+	setUserAgent(&aschc.Client)
+	aschc.Authorizer = auth
+	aschc.Sender = autorest.CreateSender(withRequestLogging())
+	client.automationScheduleClient = aschc
 
 	return &client, nil
 }
