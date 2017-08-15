@@ -56,10 +56,11 @@ type ArmClient struct {
 	vmClient               compute.VirtualMachinesClient
 	imageClient            compute.ImagesClient
 
-	diskClient              disk.DisksClient
-	cosmosDBClient          cosmosdb.DatabaseAccountsClient
-	automationAccountClient automation.AccountClient
-	automationRunbookClient automation.RunbookClient
+	diskClient                 disk.DisksClient
+	cosmosDBClient             cosmosdb.DatabaseAccountsClient
+	automationAccountClient    automation.AccountClient
+	automationRunbookClient    automation.RunbookClient
+	automationCredentialClient automation.CredentialClient
 
 	appGatewayClient             network.ApplicationGatewaysClient
 	ifaceClient                  network.InterfacesClient
@@ -552,6 +553,12 @@ func (c *Config) getArmClient() (*ArmClient, error) {
 	ardb.Authorizer = auth
 	ardb.Sender = autorest.CreateSender(withRequestLogging())
 	client.automationRunbookClient = ardb
+
+	acdb := automation.NewCredentialClientWithBaseURI(endpoint, c.SubscriptionID)
+	setUserAgent(&acdb.Client)
+	acdb.Authorizer = auth
+	acdb.Sender = autorest.CreateSender(withRequestLogging())
+	client.automationCredentialClient = acdb
 
 	return &client, nil
 }
