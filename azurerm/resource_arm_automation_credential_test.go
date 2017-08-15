@@ -100,7 +100,7 @@ resource "azurerm_automation_credential" "test" {
   credential_name     = "DefaultAzureCredential"
   resource_group_name = "${azurerm_resource_group.test.name}"
   account_name        = "${azurerm_automation_account.test.name}"
-  userName            = "kemy"
+  user_name           = "kemy"
   password            = "pwd"
   description         = "This is a test credential for terraform acceptance test"
 }
@@ -113,5 +113,6 @@ resource "azurerm_automation_account" "test" {
         name = "Free"
   }
 }
+
 `)
 }

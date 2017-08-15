@@ -36,7 +36,7 @@ func resourceArmAutomationCredential() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"userName": {
+			"user_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -60,7 +60,7 @@ func resourceArmAutomationCredentialCreateUpdate(d *schema.ResourceData, meta in
 	name := d.Get("credential_name").(string)
 	resGroup := d.Get("resource_group_name").(string)
 	accName := d.Get("account_name").(string)
-	user := d.Get("userName").(string)
+	user := d.Get("user_name").(string)
 	password := d.Get("password").(string)
 	description := d.Get("description").(string)
 
@@ -117,7 +117,7 @@ func resourceArmAutomationCredentialRead(d *schema.ResourceData, meta interface{
 	d.Set("credential_name", resp.Name)
 	d.Set("resource_group_name", resGroup)
 	d.Set("account_name", accName)
-	d.Set("userName", resp.UserName)
+	d.Set("user_name", resp.UserName)
 	d.Set("password", nil)
 	d.Set("description", resp.Description)
 
