@@ -88,7 +88,7 @@ func testCheckAzureRMAutomationRunbookExistsAndType(name string, runbookType aut
 		}
 
 		if resp.RunbookType != runbookType {
-			return fmt.Errorf("Current runbook type %s not equals to checked type %s", resp.RunbookType, runbookType)
+			return fmt.Errorf("Current runbook type %s is not consistent with the checked value %s", resp.RunbookType, runbookType)
 		}
 
 		return nil

@@ -103,7 +103,7 @@ func testCheckAzureRMAutomationAccountExistsAndSku(name string, sku automation.S
 		}
 
 		if resp.Sku.Name != sku {
-			return fmt.Errorf("Actual sku %s not equal to the checked sku %s", resp.Sku.Name, sku)
+			return fmt.Errorf("Actual sku %s is not consistent with the checked value %s", resp.Sku.Name, sku)
 		}
 
 		return nil

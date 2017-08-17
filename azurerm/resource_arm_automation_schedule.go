@@ -116,7 +116,7 @@ func resourceAzureRMAutomationScheduleFreqConstraint(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	buf.WriteString(fmt.Sprintf("%d-%d-%d-%d-%d-%d", m["second"], m["minute"], m["hour"], m["day_of_week"], m["day_of_month"], m["day_of_year"]))
+	buf.WriteString(fmt.Sprintf("%d-%d-%d-%d-%d-%d", m["second"], m["minute"], m["hour"], m["day_of_week"], m["day_of_month"]))
 	return hashcode.String(buf.String())
 }
 
@@ -223,9 +223,8 @@ func resourceArmAutomationScheduleCreateUpdate(d *schema.ResourceData, meta inte
 
 	ardt := date.Time{Time: starttime}
 
-	//interval := map[string]interface{}{}
-	//interval[""] = 1
-
+	//TODO Interval handling
+	//interval :=
 	description := d.Get("description").(string)
 
 	parameters := automation.ScheduleCreateOrUpdateParameters{
@@ -235,6 +234,7 @@ func resourceArmAutomationScheduleCreateUpdate(d *schema.ResourceData, meta inte
 			//Interval:    &interval,
 			Frequency: freq,
 			StartTime: &ardt,
+			TimeZone: "UTC",
 		},
 	}
 
