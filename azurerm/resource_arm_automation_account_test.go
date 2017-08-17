@@ -8,11 +8,13 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+
+	"github.com/Azure/azure-sdk-for-go/arm/automation"
 )
 
 func TestAccAzureRMAutomationAccount_skuBasic(t *testing.T) {
 	ri := acctest.RandInt()
-	config := testAccAzureRMAutomationAccount_skuBasic(ri, testLocation(), testAltLocation())
+	config := testAccAzureRMAutomationAccount_skuBasic(ri, testLocation())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,7 +24,7 @@ func TestAccAzureRMAutomationAccount_skuBasic(t *testing.T) {
 			{
 				Config: config,
 				Check: resource.ComposeTestCheckFunc(
-					testCheckAzureRMAutomationAccountExists("azurerm_automation_account.testBasic"),
+					testCheckAzureRMAutomationAccountExistsAndSku("azurerm_automation_account.test", automation.Basic),
 				),
 			},
 		},
@@ -31,7 +33,7 @@ func TestAccAzureRMAutomationAccount_skuBasic(t *testing.T) {
 
 func TestAccAzureRMAutomationAccount_skuFree(t *testing.T) {
 	ri := acctest.RandInt()
-	config := testAccAzureRMAutomationAccount_skuFree(ri, testLocation(), testAltLocation())
+	config := testAccAzureRMAutomationAccount_skuFree(ri, testLocation())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -41,7 +43,7 @@ func TestAccAzureRMAutomationAccount_skuFree(t *testing.T) {
 			{
 				Config: config,
 				Check: resource.ComposeTestCheckFunc(
-					testCheckAzureRMAutomationAccountExists("azurerm_automation_account.testFree"),
+					testCheckAzureRMAutomationAccountExistsAndSku("azurerm_automation_account.test", automation.Free),
 				),
 			},
 		},
@@ -73,7 +75,7 @@ func testCheckAzureRMAutomationAccountDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCheckAzureRMAutomationAccountExists(name string) resource.TestCheckFunc {
+func testCheckAzureRMAutomationAccountExistsAndSku(name string, sku automation.SkuNameEnum) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		// Ensure we have enough information in state to look up in API
@@ -100,11 +102,15 @@ func testCheckAzureRMAutomationAccountExists(name string) resource.TestCheckFunc
 			return fmt.Errorf("Bad: Automation Account '%s' (resource group: '%s') does not exist", name, resourceGroup)
 		}
 
+		if resp.Sku.Name != sku {
+			return fmt.Errorf("Actual sku %s not equal to the checked sku %s", resp.Sku.Name, sku)
+		}
+
 		return nil
 	}
 }
 
-func testAccAzureRMAutomationAccount_skuBasic(rInt int, location string, altLocation string) string {
+func testAccAzureRMAutomationAccount_skuBasic(rInt int, location string) string {
 	return fmt.Sprintf(`
 resource "azurerm_resource_group" "test" {
  name = "acctestRG-%d"
@@ -119,20 +125,10 @@ resource "azurerm_automation_account" "test" {
         name = "Basic"
   }
 }
-
-failover_policy {
-    location = "${azurerm_resource_group.test.location}"
-    priority = 0
+`, rInt, location, rInt)
 }
 
-failover_policy {
-    location = "%s"
-    priority = 1
-  }
-`, rInt, location, rInt, altLocation)
-}
-
-func testAccAzureRMAutomationAccount_skuFree(rInt int, location string, altLocation string) string {
+func testAccAzureRMAutomationAccount_skuFree(rInt int, location string) string {
 	return fmt.Sprintf(`
 resource "azurerm_resource_group" "test" {
  name = "acctestRG-%d"
@@ -147,15 +143,5 @@ resource "azurerm_automation_account" "test" {
         name = "Free"
   }
 }
-
-failover_policy {
-    location = "${azurerm_resource_group.test.location}"
-    priority = 0
-}
-
-failover_policy {
-    location = "%s"
-    priority = 1
-  }
-`, rInt, location, rInt, altLocation)
+`, rInt, location, rInt)
 }
