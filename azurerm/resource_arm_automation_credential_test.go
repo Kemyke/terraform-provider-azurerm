@@ -10,9 +10,9 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccAzureRMAutomationCredential_testScript(t *testing.T) {
+func TestAccAzureRMAutomationCredential_testCredential(t *testing.T) {
 	ri := acctest.RandInt()
-	config := testAccAzureRMAutomationCredential_testScript(ri)
+	config := testAccAzureRMAutomationCredential_testCredential(ri, testLocation())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,7 +22,7 @@ func TestAccAzureRMAutomationCredential_testScript(t *testing.T) {
 			{
 				Config: config,
 				Check: resource.ComposeTestCheckFunc(
-					testCheckAzureRMAutomationCredentialExists("azurerm_automation_credential.test"),
+					testCheckAzureRMAutomationCredentialExistsAndUserName("azurerm_automation_credential.test", "test_user"),
 				),
 				ExpectNonEmptyPlan: true,
 			},
@@ -56,7 +56,7 @@ func testCheckAzureRMAutomationCredentialDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCheckAzureRMAutomationCredentialExists(name string) resource.TestCheckFunc {
+func testCheckAzureRMAutomationCredentialExistsAndUserName(name string, username string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		// Ensure we have enough information in state to look up in API
@@ -65,7 +65,7 @@ func testCheckAzureRMAutomationCredentialExists(name string) resource.TestCheckF
 			return fmt.Errorf("Not found: %s", name)
 		}
 
-		name := rs.Primary.Attributes["credential_name"]
+		name := rs.Primary.Attributes["name"]
 		accName := rs.Primary.Attributes["account_name"]
 
 		resourceGroup, hasResourceGroup := rs.Primary.Attributes["resource_group_name"]
@@ -85,28 +85,23 @@ func testCheckAzureRMAutomationCredentialExists(name string) resource.TestCheckF
 			return fmt.Errorf("Bad: Automation Credential '%s' (resource group: '%s') does not exist", name, resourceGroup)
 		}
 
+		if *resp.UserName != username {
+			return fmt.Errorf("Current username %s not equals to checked name %s", resp.UserName, username)
+		}
+
 		return nil
 	}
 }
 
-func testAccAzureRMAutomationCredential_testScript(rInt int) string {
+func testAccAzureRMAutomationCredential_testCredential(rInt int, location string) string {
 	return fmt.Sprintf(`
 resource "azurerm_resource_group" "test" {
- name = "acctestRG"
- location = "North Europe"
-}
-
-resource "azurerm_automation_credential" "test" {
-  credential_name     = "DefaultAzureCredential"
-  resource_group_name = "${azurerm_resource_group.test.name}"
-  account_name        = "${azurerm_automation_account.test.name}"
-  user_name           = "kemy"
-  password            = "pwd"
-  description         = "This is a test credential for terraform acceptance test"
+ name = "acctestRG-%d"
+ location = "%s"
 }
 
 resource "azurerm_automation_account" "test" {
-  name                = "acctest"
+  name                = "acctest-%d"
   location            = "${azurerm_resource_group.test.location}"
   resource_group_name = "${azurerm_resource_group.test.name}"
   sku {
@@ -114,5 +109,13 @@ resource "azurerm_automation_account" "test" {
   }
 }
 
-`)
+resource "azurerm_automation_credential" "test" {
+  name     	      = "acctest-%d"
+  resource_group_name = "${azurerm_resource_group.test.name}"
+  account_name        = "${azurerm_automation_account.test.name}"
+  user_name           = "test_user"
+  password            = "test_pwd"
+  description         = "This is a test credential for terraform acceptance test"
+}
+`, rInt, location, rInt, rInt)
 }

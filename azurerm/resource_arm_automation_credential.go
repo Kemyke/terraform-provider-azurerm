@@ -20,7 +20,7 @@ func resourceArmAutomationCredential() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"credential_name": {
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -57,7 +57,7 @@ func resourceArmAutomationCredentialCreateUpdate(d *schema.ResourceData, meta in
 	client := meta.(*ArmClient).automationCredentialClient
 	log.Printf("[INFO] preparing arguments for AzureRM Automation Credential creation.")
 
-	name := d.Get("credential_name").(string)
+	name := d.Get("name").(string)
 	resGroup := d.Get("resource_group_name").(string)
 	accName := d.Get("account_name").(string)
 	user := d.Get("user_name").(string)
@@ -114,7 +114,7 @@ func resourceArmAutomationCredentialRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error making Read request on AzureRM Automation Credential '%s': %s", name, err)
 	}
 
-	d.Set("credential_name", resp.Name)
+	d.Set("name", resp.Name)
 	d.Set("resource_group_name", resGroup)
 	d.Set("account_name", accName)
 	d.Set("user_name", resp.UserName)
