@@ -226,7 +226,8 @@ func resourceArmAutomationScheduleCreateUpdate(d *schema.ResourceData, meta inte
 	//TODO Interval handling
 	//interval :=
 	description := d.Get("description").(string)
-
+ 	timezone := "UTC"
+	
 	parameters := automation.ScheduleCreateOrUpdateParameters{
 		Name: &name,
 		ScheduleCreateOrUpdateProperties: &automation.ScheduleCreateOrUpdateProperties{
@@ -234,7 +235,7 @@ func resourceArmAutomationScheduleCreateUpdate(d *schema.ResourceData, meta inte
 			//Interval:    &interval,
 			Frequency: freq,
 			StartTime: &ardt,
-			TimeZone: "UTC",
+			TimeZone: &timezone,
 		},
 	}
 

@@ -123,5 +123,5 @@ resource "azurerm_automation_schedule" "onetime" {
   }
   description	      = "This is a test runbook for terraform acceptance test"
 }
-`, rInt, location, rInt)
+`, rInt, location, rInt, rInt)
 }
