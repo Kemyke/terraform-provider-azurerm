@@ -12,7 +12,7 @@ import (
 
 func TestAccAzureRMAutomationAccount_skuBasic(t *testing.T) {
 	ri := acctest.RandInt()
-	config := testAccAzureRMAutomationAccount_skuBasic(ri)
+	config := testAccAzureRMAutomationAccount_skuBasic(ri, testLocation(), testAltLocation())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,7 +22,26 @@ func TestAccAzureRMAutomationAccount_skuBasic(t *testing.T) {
 			{
 				Config: config,
 				Check: resource.ComposeTestCheckFunc(
-					testCheckAzureRMAutomationAccountExists("azurerm_automation_account.test"),
+					testCheckAzureRMAutomationAccountExists("azurerm_automation_account.testBasic"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAzureRMAutomationAccount_skuFree(t *testing.T) {
+	ri := acctest.RandInt()
+	config := testAccAzureRMAutomationAccount_skuFree(ri, testLocation(), testAltLocation())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testCheckAzureRMAutomationAccountDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testCheckAzureRMAutomationAccountExists("azurerm_automation_account.testFree"),
 				),
 			},
 		},
@@ -85,20 +104,58 @@ func testCheckAzureRMAutomationAccountExists(name string) resource.TestCheckFunc
 	}
 }
 
-func testAccAzureRMAutomationAccount_skuBasic(rInt int) string {
+func testAccAzureRMAutomationAccount_skuBasic(rInt int, location string, altLocation string) string {
 	return fmt.Sprintf(`
 resource "azurerm_resource_group" "test" {
- name = "acctestRG"
- location = "North Europe"
+ name = "acctestRG-%d"
+ location = "%s"
 }
 
 resource "azurerm_automation_account" "test" {
-  name                = "acctest"
+  name                = "acctest-%d"
   location            = "${azurerm_resource_group.test.location}"
   resource_group_name = "${azurerm_resource_group.test.name}"
   sku {
         name = "Basic"
   }
 }
-`)
+
+failover_policy {
+    location = "${azurerm_resource_group.test.location}"
+    priority = 0
+}
+
+failover_policy {
+    location = "%s"
+    priority = 1
+  }
+`, rInt, location, rInt, altLocation)
+}
+
+func testAccAzureRMAutomationAccount_skuFree(rInt int, location string, altLocation string) string {
+	return fmt.Sprintf(`
+resource "azurerm_resource_group" "test" {
+ name = "acctestRG-%d"
+ location = "%s"
+}
+
+resource "azurerm_automation_account" "test" {
+  name                = "acctest-%d"
+  location            = "${azurerm_resource_group.test.location}"
+  resource_group_name = "${azurerm_resource_group.test.name}"
+  sku {
+        name = "Free"
+  }
+}
+
+failover_policy {
+    location = "${azurerm_resource_group.test.location}"
+    priority = 0
+}
+
+failover_policy {
+    location = "%s"
+    priority = 1
+  }
+`, rInt, location, rInt, altLocation)
 }
