@@ -24,7 +24,7 @@ func TestAccAzureRMAutomationSchedule_oneTime(t *testing.T) {
 			{
 				Config: config,
 				Check: resource.ComposeTestCheckFunc(
-					testCheckAzureRMAutomationScheduleExistsAndFrequencyType("azurerm_automation_schedule.onetime", automation.OneTime),
+					testCheckAzureRMAutomationScheduleExistsAndFrequencyType("azurerm_automation_schedule.test", automation.OneTime),
 				),
 				ExpectNonEmptyPlan: true,
 			},
@@ -111,7 +111,7 @@ resource "azurerm_automation_account" "test" {
   }
 }
 
-resource "azurerm_automation_schedule" "onetime" {
+resource "azurerm_automation_schedule" "test" {
   name	 	      = "OneTimer-%d"
   resource_group_name = "${azurerm_resource_group.test.name}"
   account_name        = "${azurerm_automation_account.test.name}"
