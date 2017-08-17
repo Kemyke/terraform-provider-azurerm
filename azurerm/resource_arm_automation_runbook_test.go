@@ -8,11 +8,13 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+
+	"github.com/Azure/azure-sdk-for-go/arm/automation"
 )
 
-func TestAccAzureRMAutomationRunbook_testScript(t *testing.T) {
+func TestAccAzureRMAutomationRunbook_PSWorkflow(t *testing.T) {
 	ri := acctest.RandInt()
-	config := testAccAzureRMAutomationRunbook_testScript(ri)
+	config := testAccAzureRMAutomationRunbook_PSWorkflow(ri, testLocation())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,7 +24,7 @@ func TestAccAzureRMAutomationRunbook_testScript(t *testing.T) {
 			{
 				Config: config,
 				Check: resource.ComposeTestCheckFunc(
-					testCheckAzureRMAutomationRunbookExists("azurerm_automation_runbook.test"),
+					testCheckAzureRMAutomationRunbookExistsAndType("azurerm_automation_runbook.test", automation.PowerShellWorkflow),
 				),
 				ExpectNonEmptyPlan: true,
 			},
@@ -56,7 +58,7 @@ func testCheckAzureRMAutomationRunbookDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCheckAzureRMAutomationRunbookExists(name string) resource.TestCheckFunc {
+func testCheckAzureRMAutomationRunbookExistsAndType(name string, runbookType automation.RunbookTypeEnum) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		// Ensure we have enough information in state to look up in API
@@ -85,19 +87,23 @@ func testCheckAzureRMAutomationRunbookExists(name string) resource.TestCheckFunc
 			return fmt.Errorf("Bad: Automation Runbook '%s' (resource group: '%s') does not exist", name, resourceGroup)
 		}
 
+		if resp.RunbookType != runbookType {
+			return fmt.Errorf("Current runbook type %s not equals to checked type %s", resp.RunbookType, runbookType)
+		}
+
 		return nil
 	}
 }
 
-func testAccAzureRMAutomationRunbook_testScript(rInt int) string {
+func testAccAzureRMAutomationRunbook_PSWorkflow(rInt int, location string) string {
 	return fmt.Sprintf(`
 resource "azurerm_resource_group" "test" {
- name = "acctestRG"
- location = "North Europe"
+ name = "acctestRG-%d"
+ location = "%s"
 }
 
 resource "azurerm_automation_account" "test" {
-  name                = "acctest"
+  name                = "acctest-%d"
   location            = "${azurerm_resource_group.test.location}"
   resource_group_name = "${azurerm_resource_group.test.name}"
   sku {
@@ -111,13 +117,13 @@ resource "azurerm_automation_runbook" "test" {
   resource_group_name = "${azurerm_resource_group.test.name}"
  
   account_name        = "${azurerm_automation_account.test.name}"
-  logVerbose	      = "true"
-  logProgress	      = "true"
+  log_verbose	      = "true"
+  log_progress	      = "true"
   description	      = "This is a test runbook for terraform acceptance test"
-  runbookType	      = "PowerShellWorkflow"
-  publishContentLink {
+  runbook_type	      = "PowerShellWorkflow"
+  publish_content_link {
 	uri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-automation-runbook-getvms/Runbooks/Get-AzureVMTutorial.ps1"
   }
 }
-`)
+`, rInt, location, rInt)
 }

@@ -47,7 +47,7 @@ func resourceArmAutomationRunbook() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"runbookType": {
+			"runbook_type": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
@@ -62,12 +62,12 @@ func resourceArmAutomationRunbook() *schema.Resource {
 				}, true),
 			},
 
-			"logProgress": {
+			"log_progress": {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
 
-			"logVerbose": {
+			"log_verbose": {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
@@ -78,7 +78,7 @@ func resourceArmAutomationRunbook() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"publishContentLink": {
+			"publish_content_link": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
@@ -115,9 +115,9 @@ func resourceArmAutomationRunbookCreateUpdate(d *schema.ResourceData, meta inter
 	tags := d.Get("tags").(map[string]interface{})
 
 	accName := d.Get("account_name").(string)
-	runbookType := automation.RunbookTypeEnum(d.Get("runbookType").(string))
-	logProgress := d.Get("logProgress").(bool)
-	logVerbose := d.Get("logVerbose").(bool)
+	runbookType := automation.RunbookTypeEnum(d.Get("runbook_type").(string))
+	logProgress := d.Get("log_progress").(bool)
+	logVerbose := d.Get("log_verbose").(bool)
 	description := d.Get("description").(string)
 
 	contentLink := expandContentLink(d)
@@ -180,11 +180,11 @@ func resourceArmAutomationRunbookRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("resource_group_name", resGroup)
 
 	d.Set("account_name", accName)
-	d.Set("logVerbose", resp.LogVerbose)
-	d.Set("logProgress", resp.LogProgress)
-	d.Set("runbookType", resp.RunbookType)
+	d.Set("log_verbose", resp.LogVerbose)
+	d.Set("log_progress", resp.LogProgress)
+	d.Set("runbook_type", resp.RunbookType)
 	d.Set("description", resp.Description)
-	d.Set("publishContentLink", nil) //publish content link is not set during Get()
+	d.Set("publish_content_link", nil) //publish content link is not set during Get()
 
 	flattenAndSetTags(d, resp.Tags)
 
@@ -216,7 +216,7 @@ func resourceArmAutomationRunbookDelete(d *schema.ResourceData, meta interface{}
 }
 
 func expandContentLink(d *schema.ResourceData) automation.ContentLink {
-	inputs := d.Get("publishContentLink").(*schema.Set).List()
+	inputs := d.Get("publish_content_link").(*schema.Set).List()
 	input := inputs[0].(map[string]interface{})
 	uri := input["uri"].(string)
 
